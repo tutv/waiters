@@ -17,7 +17,11 @@
     "url": "https://github.com/tutv/waiters/issues"
   },
   "homepage": "https://github.com/tutv/waiters#readme",
-  "dependencies": {
-    "typescript": "^4.2.4"
+  "dependencies": {},
+  "peerDependencies": {
+    "puppeteer": "^9.1.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^9.1.0"
   }
 }
