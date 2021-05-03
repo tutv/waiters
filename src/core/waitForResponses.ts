@@ -13,8 +13,6 @@ interface Options {
 type Filter = (res: HTTPResponse) => Promise<boolean>
 
 export const waitForResponses = (page: Page) => async (filters: Array<Filter>, opts?: Options): Promise<Array<HTTPResponse>> => {
-    await page.setRequestInterception(true)
-
     const _ = async (): Promise<Array<HTTPResponse>> => {
         const _maps: Record<string, boolean> = {}
         const _results: Record<string, HTTPResponse> = {}
@@ -51,8 +49,6 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
                             return _results[index]
                         })
 
-                        page.off('response', _handler)
-
                         if (_fulfilled) return false
                         _fulfilled = true
                         _t && clearTimeout(_t)
@@ -60,7 +56,6 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
                         return resolve(arr)
                     }
                 } catch (error) {
-                    page.off('response', _handler)
                     if (_fulfilled) return
                     _fulfilled = true
                     reject(error)
@@ -70,9 +65,7 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
             const _t = setTimeout(() => {
                 if (_fulfilled) return false
 
-                page.off('response', _handler)
                 _fulfilled = true
-
                 reject(new Error('Timeout.'))
             }, vTimeout)
 
@@ -81,13 +74,8 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
     }
 
     try {
-        const r = await _()
-        await page.setRequestInterception(false)
-
-        return r
+        return await _()
     } catch (error) {
-        await page.setRequestInterception(false)
-
         throw error
     }
 }
