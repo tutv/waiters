@@ -1,5 +1,7 @@
 import {HTTPResponse, Page} from "puppeteer"
 import {WaiterError} from "./WaiterError"
+import {getPath} from "../helpers/tmp"
+
 
 enum MODES {
     and = "and",
@@ -12,6 +14,14 @@ interface Options {
 }
 
 type Filter = (res: HTTPResponse) => Promise<boolean>
+
+
+const _screenshot = async (page: Page) => {
+    const file = await getPath('jpg')
+    await page.screenshot({path: file, fullPage: true, type: 'jpeg', quality: 100})
+
+    return file
+}
 
 export const waitForResponses = (page: Page) => async (filters: Array<Filter>, opts?: Options): Promise<Array<HTTPResponse>> => {
     const _ = async (): Promise<Array<HTTPResponse>> => {
@@ -68,12 +78,18 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
                 }
             }
 
-            const _t = setTimeout(() => {
+            const _t = setTimeout(async () => {
                 if (_fulfilled) return false
 
                 _fulfilled = true
                 const error = new WaiterError('Timeout.')
                 error.urls = urls
+
+                try {
+                    error.screenshot = await _screenshot(page)
+                } catch (error) {
+                    console.error('ERROR_SCREENSHOT:', error)
+                }
 
                 reject(error)
             }, vTimeout)
