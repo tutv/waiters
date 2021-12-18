@@ -1,4 +1,5 @@
 import {HTTPResponse, Page} from "puppeteer"
+import {WaiterError} from "./WaiterError"
 
 enum MODES {
     and = "and",
@@ -22,11 +23,16 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
         const vTimeout = timeout > 0 ? parseInt(timeout + "", 10) : 30000
 
         return new Promise((resolve, reject) => {
+            const urls: Array<string> = []
+
             const _handler = async (response: HTTPResponse) => {
                 const _run = async (filter: Filter, index: number) => {
                     if (_maps[index]) return false
 
                     try {
+                        const url = response.url()
+                        urls.push(url)
+
                         const res = await filter(response)
 
                         if (!res) return false
@@ -66,7 +72,10 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
                 if (_fulfilled) return false
 
                 _fulfilled = true
-                reject(new Error('Timeout.'))
+                const error = new WaiterError('Timeout.')
+                error.urls = urls
+
+                reject(error)
             }, vTimeout)
 
             page.on("response", _handler)
