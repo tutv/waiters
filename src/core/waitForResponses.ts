@@ -98,9 +98,13 @@ export const waitForResponses = (page: Page, url?: string) => async (filters: Ar
 
             if (url) {//Trigger go to url
                 try {
-                    await page.goto(url, {waitUntil: 'networkidle2'})
+                    await page.waitForTimeout(200)
+                    await page.goto(url, {waitUntil: ['load', 'networkidle2']})
                 } catch (error) {
                     console.error('GO_TO_ERROR:', error)
+                    _fulfilled = true
+
+                    return reject(error)
                 }
             }
         })
