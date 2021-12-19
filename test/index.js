@@ -36,7 +36,7 @@ setImmediate(async () => {
     }
 
     try {
-        const responses = await waitForResponses(page, 'https://github.com')([filter1, filter2], {timeout: 10000})
+        const responses = await waitForResponses(page, 'https://github.com')([filter1, filter2], {timeout: 10000, disableImages: true})
 
         const r = await Promise.map(responses, async (response) => {
             return response.status()

@@ -1,6 +1,6 @@
 {
   "name": "waiters",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Multiple waiters for puppeteer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

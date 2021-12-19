@@ -9,7 +9,8 @@ enum MODES {
 }
 
 interface Options {
-    timeout: number
+    timeout: number,
+    disableImages?: boolean
     mode?: MODES,
 }
 
@@ -98,6 +99,19 @@ export const waitForResponses = (page: Page, url?: string) => async (filters: Ar
 
             if (url) {//Trigger go to url
                 try {
+                    const {disableImages} = Object.assign({}, opts)
+
+                    if (disableImages) {
+                        await page.setRequestInterception(true)
+                        page.on('request', (request) => {
+                            if (request.resourceType() === 'image') {
+                                request.abort()
+                            } else {
+                                request.continue()
+                            }
+                        })
+                    }
+
                     await page.waitForTimeout(200)
                     await page.goto(url, {waitUntil: ['load', 'networkidle2']})
                 } catch (error) {
