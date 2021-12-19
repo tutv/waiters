@@ -18,7 +18,7 @@ setImmediate(async () => {
     })
 
 
-    await page.goto('https://github.com')
+    // await page.goto('https://github.com')
 
     const filter1 = async (response) => {
         const url =  response.url()
@@ -32,11 +32,11 @@ setImmediate(async () => {
         const url =  response.url()
         console.log("URL2:", url)
 
-        return url.includes("api.github.com/_private/browser/stasssts")
+        return url.includes("api.github.com/_private/browser/stats")
     }
 
     try {
-        const responses = await waitForResponses(page)([filter1, filter2], {timeout: 10000})
+        const responses = await waitForResponses(page, 'https://github.com')([filter1, filter2], {timeout: 10000})
 
         const r = await Promise.map(responses, async (response) => {
             return response.status()

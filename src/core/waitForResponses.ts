@@ -23,7 +23,7 @@ const _screenshot = async (page: Page) => {
     return file
 }
 
-export const waitForResponses = (page: Page) => async (filters: Array<Filter>, opts?: Options): Promise<Array<HTTPResponse>> => {
+export const waitForResponses = (page: Page, url?: string) => async (filters: Array<Filter>, opts?: Options): Promise<Array<HTTPResponse>> => {
     const _ = async (): Promise<Array<HTTPResponse>> => {
         const _maps: Record<string, boolean> = {}
         const _results: Record<string, HTTPResponse> = {}
@@ -32,7 +32,7 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
         const {timeout} = Object.assign({}, opts)
         const vTimeout = timeout > 0 ? parseInt(timeout + "", 10) : 30000
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             const urls: Array<string> = []
 
             const _handler = async (response: HTTPResponse) => {
@@ -95,6 +95,14 @@ export const waitForResponses = (page: Page) => async (filters: Array<Filter>, o
             }, vTimeout)
 
             page.on("response", _handler)
+
+            if (url) {//Trigger go to url
+                try {
+                    await page.goto(url, {waitUntil: 'networkidle2'})
+                } catch (error) {
+                    console.error('GO_TO_ERROR:', error)
+                }
+            }
         })
     }
 
